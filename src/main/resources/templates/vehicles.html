@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Management | Fleet System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: url('https://images.unsplash.com/photo-1502877338535-766e1452684a')
+            no-repeat center center/cover;
+            backdrop-filter: blur(6px);
+            color: #fff;
+        }
+        header {
+            background: rgba(0,0,50,0.7);
+            padding: 15px 30px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background: rgba(0,0,0,0.6);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 26px;
+            color: #00c8ff;
+        }
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        input, select, button {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            font-size: 15px;
+        }
+        input, select {
+            width: 100%;
+        }
+        button {
+            grid-column: span 2;
+            background: #00c8ff;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0097c1;
+        }
+        .fleet {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+            gap: 20px;
+        }
+        .vehicle {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .vehicle img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+        .vehicle:hover {
+            background: rgba(0,200,255,0.2);
+            transform: translateY(-5px);
+        }
+        .status {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .available { color: #00ff90; }
+        .booked { color: #ff4d4d; }
+    </style>
+</head>
+<body>
+
+<header>
+    Vehicle Availability & Tracking System
+</header>
+
+<div class="container">
+    <h2>Check Vehicle Availability</h2>
+    <form id="availabilityForm">
+        <input type="text" id="pickup" placeholder="Pickup Location" required>
+        <input type="text" id="return" placeholder="Return Location" required>
+        <input type="datetime-local" id="pickupDate" required>
+        <input type="datetime-local" id="returnDate" required>
+        <select id="type" required>
+            <option value="">Select Vehicle Type</option>
+            <option>Car</option>
+            <option>Van</option>
+            <option>SUV</option>
+            <option>Bus</option>
+            <option>Motorbike</option>
+        </select>
+        <button type="submit">Check Availability</button>
+    </form>
+
+    <div class="fleet" id="fleet">
+        <!-- Vehicles dynamically loaded -->
+    </div>
+</div>
+
+<script>
+    const fleet = [
+        { id:1, name:"Toyota Corolla", type:"Car", img:"https://toyota.com/img.jpg", status:"Available"},
+        { id:2, name:"Nissan Caravan", type:"Van", img:"https://nissan.com/img.jpg", status:"Booked"},
+        { id:3, name:"Suzuki Swift", type:"Car", img:"https://suzuki.com/img.jpg", status:"Available"},
+        { id:4, name:"Mitsubishi Rosa", type:"Bus", img:"https://mitsubishi.com/img.jpg", status:"Booked"}
+    ];
+
+    function displayFleet() {
+        const container = document.getElementById("fleet");
+        container.innerHTML = "";
+        fleet.forEach(v => {
+            container.innerHTML += `
+        <div class="vehicle">
+          <img src="${v.img}" alt="${v.name}">
+          <h3>${v.name}</h3>
+          <p>Type: ${v.type}</p>
+          <p class="status ${v.status.toLowerCase()}">${v.status}</p>
+        </div>
+      `;
+        });
+    }
+
+    document.getElementById("availabilityForm").addEventListener("submit", e => {
+        e.preventDefault();
+        alert("Checking availability... (connect backend for real data)");
+    });
+
+    displayFleet();
+</script>
+
+</body>
+</html>

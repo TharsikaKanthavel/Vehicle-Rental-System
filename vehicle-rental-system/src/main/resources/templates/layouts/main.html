@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(pageTitle)">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="${pageTitle} + ' - Vehicle Rental System'">Vehicle Rental System</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css" rel="stylesheet"/>
+  <style>
+    .sidebar{transition:all .3s}.sidebar.collapsed{width:64px}.main-content{transition:all .3s}
+    .hover-scale{transition:transform .2s}.hover-scale:hover{transform:scale(1.05)}
+    .nav-link{display:flex;align-items:center;padding:.75rem 1.5rem}
+    .nav-link:hover{background:#eff6ff;color:#2563eb}
+    .nav-icon{width:1.25rem;margin-right:.75rem;color:#6b7280}
+  </style>
+</head>
+
+<body class="bg-gray-100">
+
+<!-- NAV -->
+<nav th:fragment="navigation" class="bg-blue-600 text-white shadow-lg fixed w-full top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <button id="sidebarToggle" class="mr-4 text-white" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
+        <i class="fas fa-car text-2xl mr-2"></i>
+        <span class="font-semibold text-xl">VehicleRental Pro</span>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- Quick link (role-aware) -->
+        <a sec:authorize="hasRole('DRIVER')" href="/driver/deliveries"
+           class="hidden sm:inline-flex items-center bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded-md text-white text-sm">
+          <i class="fa fa-route mr-2"></i> My Deliveries
+        </a>
+        <a sec:authorize="hasRole('ADMIN')" href="/admin/deliveries"
+           class="hidden sm:inline-flex items-center bg-white/20 hover:bg-white/30 px-3 py-2 rounded-md text-white text-sm">
+          <i class="fa fa-truck mr-2"></i> Deliveries
+        </a>
+        <a sec:authorize="hasRole('ADMIN')" href="/admin/inspections"
+           class="hidden sm:inline-flex items-center bg-white/20 hover:bg-white/30 px-3 py-2 rounded-md text-white text-sm">
+          <i class="fa fa-clipboard-check mr-2"></i> Inspections
+        </a>
+
+        <span sec:authentication="name" class="text-blue-100"></span>
+        <div class="relative group">
+          <button class="flex items-center space-x-2 bg-blue-700 px-4 py-2 rounded-lg hover:bg-blue-800">
+            <i class="fas fa-user-circle"></i><span>Account</span><i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-50">
+            <a href="/profile" class="block px-4 py-2 text-gray-800 hover:bg-blue-100"><i class="fas fa-user mr-2"></i>Profile</a>
+            <a href="/change-password" class="block px-4 py-2 text-gray-800 hover:bg-blue-100"><i class="fas fa-key mr-2"></i>Change Password</a>
+            <div class="border-t my-1"></div>
+            <form th:action="@{/logout}" method="post">
+              <button type="submit" class="w-full text-left px-4 py-2 text-gray-800 hover:bg-blue-100">
+                <i class="fas fa-sign-out-alt mr-2"></i>Sign out
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<!-- SIDEBAR -->
+<aside th:fragment="sidebar" id="sidebar" class="sidebar bg-white shadow-md min-h-screen w-64 fixed">
+  <nav class="mt-6">
+
+    <!-- ADMIN -->
+    <div sec:authorize="hasRole('ADMIN')">
+      <a href="/admin/dashboard" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span>Dashboard</span></a>
+      <a href="/admin/users" class="nav-link"><i class="fas fa-users nav-icon"></i><span>Manage Users</span></a>
+      <a href="/admin/vehicles" class="nav-link"><i class="fas fa-car nav-icon"></i><span>Manage Vehicles</span></a>
+      <a href="/admin/reports" class="nav-link"><i class="fas fa-chart-bar nav-icon"></i><span>Reports</span></a>
+
+      <!-- NEW admin links -->
+      <div class="mt-2 border-t"></div>
+      <a href="/admin/deliveries" class="nav-link"><i class="fa fa-truck nav-icon"></i><span>Deliveries</span></a>
+      <a href="/admin/inspections" class="nav-link"><i class="fa fa-clipboard-check nav-icon"></i><span>Inspections</span></a>
+    </div>
+
+    <!-- CUSTOMER -->
+    <div sec:authorize="hasRole('CUSTOMER')" class="mt-4">
+      <a href="/customer/dashboard" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span>Dashboard</span></a>
+      <a href="/customer/vehicles" class="nav-link"><i class="fas fa-car nav-icon"></i><span>Browse Vehicles</span></a>
+      <a href="/customer/rentals" class="nav-link"><i class="fas fa-calendar-alt nav-icon"></i><span>My Rentals</span></a>
+      <a href="/customer/profile" class="nav-link"><i class="fas fa-user nav-icon"></i><span>Profile</span></a>
+    </div>
+
+    <!-- FINANCE -->
+    <div sec:authorize="hasRole('FINANCE_MANAGER')" class="mt-4">
+      <a href="/finance/dashboard" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span>Dashboard</span></a>
+      <a href="/finance/transactions" class="nav-link"><i class="fas fa-receipt nav-icon"></i><span>Transactions</span></a>
+      <a href="/finance/reports" class="nav-link"><i class="fas fa-chart-line nav-icon"></i><span>Financial Reports</span></a>
+    </div>
+
+    <!-- DRIVER -->
+    <div sec:authorize="hasRole('DRIVER')" class="mt-4">
+      <a href="/driver/dashboard" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span>Dashboard</span></a>
+      <a href="/driver/schedule" class="nav-link"><i class="fas fa-calendar nav-icon"></i><span>Schedule</span></a>
+      <a href="/driver/assignments" class="nav-link"><i class="fas fa-tasks nav-icon"></i><span>Assignments</span></a>
+
+      <!-- NEW driver link -->
+      <div class="mt-2 border-t"></div>
+      <a href="/driver/deliveries" class="nav-link"><i class="fa fa-route nav-icon"></i><span>My Deliveries</span></a>
+    </div>
+
+    <!-- STAFF -->
+    <div sec:authorize="hasRole('STAFF')" class="mt-4">
+      <a href="/staff/dashboard" class="nav-link"><i class="fas fa-tachometer-alt nav-icon"></i><span>Dashboard</span></a>
+      <a href="/staff/rentals" class="nav-link"><i class="fas fa-clipboard-list nav-icon"></i><span>Manage Rentals</span></a>
+      <a href="/staff/vehicles" class="nav-link"><i class="fas fa-car nav-icon"></i><span>Manage Vehicles</span></a>
+    </div>
+
+  </nav>
+</aside>
+
+<!-- FLASH -->
+<div th:fragment="flash-messages">
+  <div th:if="${success}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+    <i class="fas fa-check-circle mr-2"></i><span th:text="${success}">Success</span>
+  </div>
+  <div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <i class="fas fa-exclamation-circle mr-2"></i><span th:text="${error}">Error</span>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer th:fragment="footer" class="bg-gray-200 text-center p-4 mt-8">
+  <p>&copy; <span th:text="${#dates.format(#dates.createNow(),'yyyy')}">2025</span> Vehicle Rental System</p>
+</footer>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const t = document.getElementById('sidebarToggle');
+    if (t) t.addEventListener('click', function(){
+      const sidebar = document.getElementById('sidebar');
+      const main = document.getElementById('mainContent');
+      if (sidebar) sidebar.classList.toggle('collapsed');
+      if (main){ main.classList.toggle('ml-64'); main.classList.toggle('ml-16'); }
+    });
+
+    // auto-dismiss flash
+    setTimeout(() => {
+      document.querySelectorAll('.bg-green-100, .bg-red-100').forEach(el => {
+        el.style.transition = 'opacity .5s'; el.style.opacity = '0';
+        setTimeout(() => el.remove(), 500);
+      });
+    }, 5000);
+  });
+</script>
+</body>
+</html>

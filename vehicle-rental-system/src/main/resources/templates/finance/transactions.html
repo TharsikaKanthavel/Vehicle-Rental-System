@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layouts/main :: head">
+    <title>Transactions - Vehicle Rental System</title>
+</head>
+<body>
+<div th:replace="layouts/main :: navigation"></div>
+
+<div class="flex pt-16">
+    <div th:replace="layouts/main :: sidebar"></div>
+
+    <main class="main-content flex-1 ml-64 p-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Transaction History</h1>
+            <p class="text-gray-600">View and manage all financial transactions</p>
+        </div>
+
+        <!-- Transaction Table -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Recent Transactions</h3>
+                    <div class="flex space-x-2">
+                        <input type="text" placeholder="Search transactions..." class="px-4 py-2 border rounded-lg">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-filter mr-2"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehicle</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                    <!-- Sample data - replace with actual transactions -->
+                    <tr>
+                        <td class="px-6 py-4">#001</td>
+                        <td class="px-6 py-4">2024-01-15</td>
+                        <td class="px-6 py-4">John Doe</td>
+                        <td class="px-6 py-4">Toyota Camry</td>
+                        <td class="px-6 py-4">$225.00</td>
+                        <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">#002</td>
+                        <td class="px-6 py-4">2024-01-16</td>
+                        <td class="px-6 py-4">Jane Smith</td>
+                        <td class="px-6 py-4">Honda CR-V</td>
+                        <td class="px-6 py-4">$330.00</td>
+                        <td class="px-6 py-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Pending</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

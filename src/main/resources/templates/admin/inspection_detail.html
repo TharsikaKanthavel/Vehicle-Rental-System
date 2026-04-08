@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DriveEase • Admin • Inspection Detail</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root{--primary:#2c3e50;--secondary:#3498db;--accent:#e74c3c;--dark:#2c3e50;--shadow:0 4px 6px rgba(0,0,0,.1)}
+        *{box-sizing:border-box;font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif}
+        body{margin:0;background:#f8f9fa;color:#333;min-height:100vh;display:flex;flex-direction:column}
+        header{background:linear-gradient(135deg,var(--primary),#1f2a3a);color:#fff;padding:18px 0;box-shadow:var(--shadow)}
+        .container{max-width:1100px;margin:0 auto;padding:0 20px}
+        .row{display:flex;align-items:center;justify-content:space-between}
+        .logo{display:flex;align-items:center;gap:10px}
+        .logo i{color:var(--secondary);font-size:28px}
+        main{flex:1;padding:28px 0}
+        .card{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:18px;margin-bottom:18px}
+        .grid{display:grid;gap:16px}
+        .g2{grid-template-columns:repeat(2,1fr)}
+        .g3{grid-template-columns:repeat(3,1fr)}
+        img{width:100%;height:230px;object-fit:cover;border-radius:12px;box-shadow:var(--shadow)}
+        .label{font-weight:700;color:#444}
+        .muted{opacity:.75}
+        .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
+        .good{background:#e8ffef;color:#167a3d}
+        .warn{background:#fff7e6;color:#b46900}
+        .bad{background:#ffecec;color:#b12e2e}
+        .btn{border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:700}
+        .btn-ghost{background:transparent;border:2px solid #3498db;color:#3498db}
+        footer{background:#2c3e50;color:#fff;padding:24px 0;margin-top:auto}
+    </style>
+</head>
+<body>
+<header>
+    <div class="container">
+        <div class="row">
+            <div class="logo"><i class="fas fa-car"></i><h2 style="margin:0">DriveEase • Admin</h2></div>
+            <div><a th:href="@{/admin/inspections}" class="btn btn-ghost">Back to Inspections</a></div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="container">
+
+        <div class="card">
+            <h3 style="margin:0 0 10px 0">Inspection #<span th:text="${i.id}">0</span></h3>
+            <div class="grid g2">
+                <div><span class="label">Delivery:</span> <span th:text="${i.deliveryId}">0</span></div>
+                <div><span class="label">Vehicle:</span> <span th:text="${i.vehicleId}">0</span></div>
+                <div><span class="label">Inspector:</span> <span th:text="${i.inspectedByUserId}">0</span></div>
+                <div><span class="label">Created:</span> <span th:text="${#temporals.format(i.createdAt,'yyyy-MM-dd HH:mm')}">—</span></div>
+
+                <div><span class="label">Odometer:</span> <span th:text="${i.odometer}">—</span> km</div>
+                <div>
+                    <span class="label">Fuel:</span>
+                    <span class="pill warn" th:if="${i.fuelLevel.name()=='P0' or i.fuelLevel.name()=='P25'}"
+                          th:text="${i.fuelLevel}">P25</span>
+                    <span class="pill good" th:if="${!(i.fuelLevel.name()=='P0' or i.fuelLevel.name()=='P25')}"
+                          th:text="${i.fuelLevel}">P50</span>
+                </div>
+                <div>
+                    <span class="label">Cleanliness:</span>
+                    <span class="pill bad" th:if="${i.cleanliness.name()=='POOR'}"
+                          th:text="${i.cleanliness}">POOR</span>
+                    <span class="pill warn" th:if="${i.cleanliness.name()=='FAIR'}"
+                          th:text="${i.cleanliness}">FAIR</span>
+                    <span class="pill good" th:if="${i.cleanliness.name()!='POOR' and i.cleanliness.name()!='FAIR'}"
+                          th:text="${i.cleanliness}">GOOD</span>
+                </div>
+                <div><span class="label">Notes:</span> <span class="muted" th:text="${i.notes}">—</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4 style="margin:0 0 12px 0">Photos</h4>
+            <div class="grid g3">
+                <div><img th:src="@{|/files/inspections/${i.deliveryId}/front|}" alt="Front" loading="lazy"></div>
+                <div><img th:src="@{|/files/inspections/${i.deliveryId}/rear|}" alt="Rear" loading="lazy"></div>
+                <div><img th:src="@{|/files/inspections/${i.deliveryId}/left|}" alt="Left" loading="lazy"></div>
+                <div><img th:src="@{|/files/inspections/${i.deliveryId}/right|}" alt="Right" loading="lazy"></div>
+                <div><img th:src="@{|/files/inspections/${i.deliveryId}/interior|}" alt="Interior" loading="lazy"></div>
+                <div><img th:src="@{|/files/inspections/${i.deliveryId}/dashboard|}" alt="Dashboard" loading="lazy"></div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<footer>
+    <div class="container">© DriveEase Vehicle Rental • Admin</div>
+</footer>
+</body>
+</html>

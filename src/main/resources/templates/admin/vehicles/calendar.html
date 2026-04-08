@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layouts/main :: head('Admin • Vehicle Calendar')}"></head>
+<body class="bg-gray-100">
+<div th:replace="~{layouts/main :: navigation}"></div>
+<div class="flex pt-16">
+    <div th:replace="~{layouts/main :: sidebar}"></div>
+
+    <main class="flex-1 ml-64 p-8">
+        <div class="mb-4">
+            <h1 class="text-2xl font-bold" th:text="${vehicle.make} + ' ' + ${vehicle.model} + ' • ' + ${vehicle.licensePlate}"></h1>
+            <p class="text-gray-600">Booked (orange) • Maintenance (red)</p>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <label>From <input id="from" type="date" class="border px-3 py-2 rounded w-full" th:value="${from}"></label>
+                <label>To <input id="to" type="date" class="border px-3 py-2 rounded w-full" th:value="${to}"></label>
+                <button class="bg-blue-600 text-white px-4 rounded" onclick="load()">Load</button>
+            </div>
+            <div class="mt-4 h-6 bg-gray-100 rounded overflow-hidden relative" id="bar"></div>
+            <p id="r" class="text-sm text-gray-500 mt-1"></p>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow">
+            <h3 class="font-semibold mb-2">Schedule Maintenance</h3>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <input id="t" class="border px-3 py-2 rounded" placeholder="Type (Service/Repair)">
+                <input id="mf" type="date" class="border px-3 py-2 rounded">
+                <input id="mt" type="date" class="border px-3 py-2 rounded">
+                <input id="n" class="border px-3 py-2 rounded" placeholder="Notes">
+                <button class="bg-amber-600 text-white px-4 rounded" onclick="schedule()">Schedule</button>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a class="bg-gray-700 text-white px-4 py-2 rounded" href="/admin/vehicles">Back</a>
+        </div>
+    </main>
+</div>
+
+<script th:inline="javascript">
+    const vehicleId = /*[[${vehicleId}]]*/ 0;
+    function diffDays(a,b){ return (b-a)/(1000*60*60*24); }
+
+    async function load(){
+        const from = document.getElementById('from').value;
+        const to   = document.getElementById('to').value;
+        if(!from || !to){ alert('Pick a date range'); return; }
+
+        const rentals = await (await fetch(`/api/rentals/vehicle/${vehicleId}?from=${from}&to=${to}`)).json().catch(()=>[]);
+        const maintenance = await (await fetch(`/api/vehicles/${vehicleId}/maintenance`)).json().catch(()=>[]);
+
+        const bar = document.getElementById('bar'); bar.innerHTML='';
+        const start = new Date(from), end = new Date(to); const total = diffDays(start, end);
+
+        (rentals||[]).forEach(seg=>{
+            const s=new Date(seg.start), e=new Date(seg.end);
+            const div=document.createElement('div');
+            div.className='absolute top-0 h-6 bg-yellow-400';
+            div.style.left=((diffDays(start,s)/total)*100)+'%';
+            div.style.width=((diffDays(s,e)/total)*100)+'%';
+            bar.appendChild(div);
+        });
+
+        (maintenance||[]).forEach(m=>{
+            const s=new Date(m.startDate), e=new Date(m.endDate);
+            const div=document.createElement('div');
+            div.className='absolute top-0 h-6 bg-red-500 opacity-80';
+            div.style.left=((diffDays(start,s)/total)*100)+'%';
+            div.style.width=((diffDays(s,e)/total)*100)+'%';
+            bar.appendChild(div);
+        });
+
+        document.getElementById('r').textContent = `${from} → ${to}`;
+    }
+
+    async function schedule(){
+        const type=document.getElementById('t').value||'Maintenance';
+        const f=document.getElementById('mf').value, t=document.getElementById('mt').value;
+        const n=document.getElementById('n').value;
+        if(!f || !t){ alert('Pick maintenance dates'); return; }
+        const res=await fetch(`/api/vehicles/${vehicleId}/maintenance`,{
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({type:type, start:f, end:t, notes:n})
+        });
+        if(res.ok){ alert('Scheduled'); load(); } else alert(await res.text());
+    }
+    if(document.getElementById('from').value && document.getElementById('to').value){ load(); }
+</script>
+</body>
+</html>

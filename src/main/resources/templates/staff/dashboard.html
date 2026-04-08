@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layouts/main :: head('Staff Dashboard')}"></head>
+<body>
+<div th:replace="~{layouts/main :: navigation}"></div>
+
+<div class="flex pt-16">
+    <div th:replace="~{layouts/main :: sidebar}"></div>
+
+    <main id="mainContent" class="main-content flex-1 ml-64 p-8">
+        <div th:replace="~{layouts/main :: flash-messages}"></div>
+
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Operations Overview</h1>
+            <p class="text-gray-600">Manage rentals, vehicles, and today’s tasks.</p>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow p-6 border-l-4 border-blue-500">
+                <p class="text-sm text-gray-600">Pending Rentals</p>
+                <p class="text-3xl font-bold" th:text="${pendingRentals != null ? pendingRentals.size() : 0}">0</p>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6 border-l-4 border-yellow-500">
+                <p class="text-sm text-gray-600">Vehicles Need Service</p>
+                <p class="text-3xl font-bold" th:text="${vehiclesNeedingService != null ? vehiclesNeedingService.size() : 0}">0</p>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6 border-l-4 border-green-500">
+                <p class="text-sm text-gray-600">Pickups/Drop-offs Today</p>
+                <p class="text-3xl font-bold" th:text="${todayPickupsDropoffs ?: 0}">0</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Pending Rentals -->
+            <div class="bg-white rounded-xl shadow p-6">
+                <h3 class="text-xl font-semibold mb-4">Pending Rentals</h3>
+                <div th:if="${pendingRentals == null or #lists.isEmpty(pendingRentals)}" class="text-gray-500">Nothing pending.</div>
+                <div th:each="r : ${pendingRentals}" class="flex justify-between py-2 border-b last:border-b-0">
+                    <div>
+                        <p class="font-medium" th:text="${r.customer.fullName}">Customer</p>
+                        <p class="text-sm text-gray-500" th:text="${r.vehicle.make + ' ' + r.vehicle.model}">Vehicle</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm" th:text="${#temporals.format(r.startDate, 'MMM dd')} + ' - ' + ${#temporals.format(r.endDate, 'MMM dd')}">Dates</p>
+                        <a th:href="@{'/staff/rentals/' + ${r.id}}" class="text-blue-600 hover:text-blue-800 text-sm">Review</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicles service -->
+            <div class="bg-white rounded-xl shadow p-6">
+                <h3 class="text-xl font-semibold mb-4">Vehicles Needing Service</h3>
+                <div th:if="${vehiclesNeedingService == null or #lists.isEmpty(vehiclesNeedingService)}" class="text-gray-500">All good!</div>
+                <div th:each="v : ${vehiclesNeedingService}" class="flex justify-between py-2 border-b last:border-b-0">
+                    <div>
+                        <p class="font-medium" th:text="${v.make + ' ' + v.model}">Vehicle</p>
+                        <p class="text-sm text-gray-500" th:text="'Mileage: ' + ${v.mileage}">Mileage</p>
+                    </div>
+                    <a th:href="@{'/staff/vehicles/' + ${v.id}}" class="text-blue-600 hover:text-blue-800 text-sm">Details</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

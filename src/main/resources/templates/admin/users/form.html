@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layouts/main :: head('User Form')}">
+    <title>User Form</title> <!-- fallback for IDE warning; layout will replace this -->
+</head>
+<body>
+<div th:replace="~{layouts/main :: navigation}"></div>
+
+<div class="flex pt-16">
+    <div th:replace="~{layouts/main :: sidebar}"></div>
+
+    <main class="flex-1 ml-64 p-8">
+        <h1 class="text-2xl font-bold mb-6" th:text="${pageTitle}">Add / Edit User</h1>
+
+        <!-- ✅ Single endpoint; controller decides create/update by presence of id -->
+        <form th:action="@{/admin/users}" method="post" th:object="${user}"
+              class="bg-white rounded-xl shadow p-6 space-y-4">
+
+            <!-- include id only when editing -->
+            <input type="hidden" th:if="${user.id != null}" th:field="*{id}"/>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <!-- Full Name -->
+                <div>
+                    <label for="fullName" class="block text-sm mb-1">Full Name</label>
+                    <input id="fullName" th:field="*{fullName}" class="w-full border rounded px-3 py-2"/>
+                    <p class="text-red-600 text-sm" th:errors="*{fullName}"></p>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm mb-1">Email</label>
+                    <input id="email" th:field="*{email}" class="w-full border rounded px-3 py-2"/>
+                    <p class="text-red-600 text-sm" th:errors="*{email}"></p>
+                </div>
+
+                <!-- Username -->
+                <div>
+                    <label for="username" class="block text-sm mb-1">Username</label>
+                    <input id="username" th:field="*{username}" class="w-full border rounded px-3 py-2"
+                           th:readonly="${user.id != null}"/>
+                    <p class="text-red-600 text-sm" th:errors="*{username}"></p>
+                </div>
+
+                <!-- Password (only on create) -->
+                <div th:if="${user.id == null}">
+                    <label for="password" class="block text-sm mb-1">Password</label>
+                    <input id="password" th:field="*{password}" type="password" class="w-full border rounded px-3 py-2"/>
+                    <p class="text-red-600 text-sm" th:errors="*{password}"></p>
+                </div>
+            </div>
+
+            <!-- Roles -->
+            <div>
+                <label class="block text-sm mb-2">Roles</label>
+                <div class="flex flex-wrap gap-3">
+                    <label th:each="r : ${allRoles}" class="inline-flex items-center gap-2">
+                        <input type="checkbox" name="roles" th:value="${r}" th:checked="${user.roles.contains(r)}"/>
+                        <span th:text="${#strings.substring(r,5)}">ADMIN</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+                <a href="/admin/users" class="px-4 py-2 rounded border">Cancel</a>
+            </div>
+        </form>
+    </main>
+</div>
+</body>
+</html>

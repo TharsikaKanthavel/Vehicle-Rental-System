@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>Checkout</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="container">
+  <h2>Checkout</h2>
+  <div>
+    <p>Vehicle: <span th:text="${booking.vehicleId}"></span></p>
+    <p>Pickup: <span th:text="${booking.pickupDateTime}"></span></p>
+    <p>Return: <span th:text="${booking.returnDateTime}"></span></p>
+    <p>Estimated Total: <strong th:text="${booking.estimatedTotal} + ' LKR'"></strong></p>
+  </div>
+
+  <form th:action="@{/customer/bookings/pay}" method="post">
+    <input type="hidden" name="bookingId" th:value="${booking.id}" />
+    <label>Select payment method</label><br/>
+    <label><input type="radio" name="method" value="PAYPAL_FAKE" checked/> PayPal (fake)</label><br/>
+    <label><input type="radio" name="method" value="PAYTM_FAKE"/> PayTM (fake)</label><br/>
+    <p><small>Pre-authorization will be created. Admin must approve to capture payment.</small></p>
+    <button type="submit">Pre-authorize Payment</button>
+  </form>
+</div>
+</body>
+</html>

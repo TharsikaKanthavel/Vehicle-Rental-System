@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layouts/main :: head('Admin Dashboard')}"></head>
+<body>
+<div th:replace="~{layouts/main :: navigation}"></div>
+
+<div class="flex pt-16">
+  <div th:replace="~{layouts/main :: sidebar}"></div>
+
+  <main id="mainContent" class="main-content flex-1 ml-64 p-8">
+    <div th:replace="~{layouts/main :: flash-messages}"></div>
+
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+      <p class="text-gray-600">Welcome back! Here's your system overview.</p>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+      <!-- Total Users -->
+      <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-white bg-opacity-20 mr-4">
+            <i class="fas fa-users text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-sm opacity-90">Total Users</p>
+            <p class="text-3xl font-bold" id="kpiTotalUsers" th:text="${totalUsers}">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Vehicles -->
+      <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-white bg-opacity-20 mr-4">
+            <i class="fas fa-car text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-sm opacity-90">Available Vehicles</p>
+            <p class="text-3xl font-bold" id="kpiAvailableVehicles" th:text="${availableVehicles}">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Rentals -->
+      <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-white bg-opacity-20 mr-4">
+            <i class="fas fa-calendar-check text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-sm opacity-90">Active Rentals</p>
+            <p class="text-3xl font-bold" id="kpiActiveRentals" th:text="${activeRentals}">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PENDING APPROVALS (restored) -->
+      <div class="bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl p-6 shadow-lg">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-white bg-opacity-20 mr-4">
+            <i class="fas fa-hourglass-half text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-sm opacity-90">Pending Approvals</p>
+            <p class="text-3xl font-bold" id="kpiPendingApprovals" th:text="${pendingApprovalsCount}">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS + RECENT USERS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <!-- Revenue Chart -->
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <h3 class="text-xl font-semibold mb-4">Revenue Overview</h3>
+        <canvas id="revenueChart" width="400" height="200"></canvas>
+      </div>
+
+      <!-- Recent Users -->
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <h3 class="text-xl font-semibold mb-4">Recent Users</h3>
+        <div class="space-y-4">
+          <div th:each="u : ${recentUsers}" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                <i class="fas fa-user text-blue-600"></i>
+              </div>
+              <div>
+                <p class="font-medium" th:text="${u.fullName}">John Doe</p>
+                <p class="text-sm text-gray-500" th:text="${u.email}">john@example.com</p>
+              </div>
+            </div>
+            <span th:each="role : ${u.roles}"
+                  th:text="${#strings.substring(role, 5)}"
+                  class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PENDING APPROVALS LIST (restored) -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold">Pending Booking Approvals</h3>
+        <a href="/admin/bookings/pending"
+           class="inline-flex items-center bg-rose-600 text-white px-3 py-2 rounded-md hover:bg-rose-700 text-sm">
+          <i class="fa fa-clipboard-check mr-2"></i> Review All
+        </a>
+      </div>
+
+      <div th:if="${pendingApprovals == null or #lists.isEmpty(pendingApprovals)}"
+           class="text-gray-500">No approvals pending.</div>
+
+      <div th:each="b : ${pendingApprovals}"
+           class="flex justify-between items-center py-3 border-b last:border-b-0">
+        <div>
+          <p class="font-medium">
+            Booking #<span th:text="${b.id}">0</span> •
+            <span th:text="${b.customerName}">Customer</span>
+          </p>
+          <p class="text-sm text-gray-500">
+            <span th:text="${b.vehicleLabel}">Vehicle</span> •
+            <span th:text="${#temporals.format(b.startTime,'MMM dd, HH:mm')}">Start</span>
+            –
+            <span th:text="${#temporals.format(b.endTime,'MMM dd, HH:mm')}">End</span>
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <a th:href="@{|/admin/bookings/${b.id}|}"
+             class="px-3 py-2 border rounded-md text-sm hover:bg-gray-50">Open</a>
+          <a th:href="@{|/admin/bookings/${b.id}/approve|}"
+             class="px-3 py-2 bg-emerald-600 text-white rounded-md text-sm hover:bg-emerald-700">Approve</a>
+          <a th:href="@{|/admin/bookings/${b.id}/reject|}"
+             class="px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700">Reject</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS (kept + Deliveries/Inspections) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <a href="/admin/users/create" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl border-l-4 border-blue-500">
+        <div class="flex items-center">
+          <i class="fas fa-user-plus text-3xl text-blue-500 mr-4"></i>
+          <div>
+            <h3 class="font-semibold text-lg">Add New User</h3>
+            <p class="text-gray-600 text-sm">Create staff or manager accounts</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="/admin/vehicles" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl border-l-4 border-green-500">
+        <div class="flex items-center">
+          <i class="fas fa-car text-3xl text-green-500 mr-4"></i>
+          <div>
+            <h3 class="font-semibold text-lg">Manage Vehicles</h3>
+            <p class="text-gray-600 text-sm">Add or update vehicle inventory</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="/admin/vehicles/availability" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl border-l-4 border-yellow-500">
+        <div class="flex items-center">
+          <i class="fas fa-calendar-check text-3xl text-yellow-500 mr-4"></i>
+          <div>
+            <h3 class="font-semibold text-lg">Availability Calendar</h3>
+            <p class="text-gray-600 text-sm">Check bookings & maintenance</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="/admin/bookings/pending" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl border-l-4 border-rose-500">
+        <div class="flex items-center">
+          <i class="fas fa-hourglass-half text-3xl text-rose-500 mr-4"></i>
+          <div>
+            <h3 class="font-semibold text-lg">Pending Approvals</h3>
+            <p class="text-gray-600 text-sm">Approve or reject bookings</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="/admin/deliveries" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl border-l-4 border-indigo-500">
+        <div class="flex items-center">
+          <i class="fas fa-truck text-3xl text-indigo-500 mr-4"></i>
+          <div>
+            <h3 class="font-semibold text-lg">Deliveries</h3>
+            <p class="text-gray-600 text-sm">Schedule & manage driver runs</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="/admin/inspections" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl border-l-4 border-purple-500">
+        <div class="flex items-center">
+          <i class="fas fa-clipboard-check text-3xl text-purple-500 mr-4"></i>
+          <div>
+            <h3 class="font-semibold text-lg">Inspections</h3>
+            <p class="text-gray-600 text-sm">Review vehicle inspection reports</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </main>
+</div>
+
+<div th:replace="~{layouts/main :: footer}"></div>
+
+<!-- OPTIONAL metrics refresh + chart (no ternaries) -->
+<script>
+  (async function refreshKpis(){
+    try{
+      const res = await fetch('/api/metrics/vehicles/summary');
+      if(res.ok){
+        const m = await res.json();
+        const fmt = n => (n ?? 0).toLocaleString();
+        const elA = document.getElementById('kpiAvailableVehicles');
+        const elR = document.getElementById('kpiActiveRentals');
+        const elU = document.getElementById('kpiTotalUsers');
+        if(elA) elA.textContent = fmt(m.availableVehicles);
+        if(elR) elR.textContent = fmt(m.activeRentals);
+        if(elU && typeof m.totalUsers !== 'undefined') elU.textContent = fmt(m.totalUsers);
+      }
+      const res2 = await fetch('/api/metrics/bookings/pending-count');
+      if(res2.ok){
+        const {count} = await res2.json();
+        const elP = document.getElementById('kpiPendingApprovals');
+        if(elP) elP.textContent = (count ?? 0).toLocaleString();
+      }
+    }catch(e){ /* ignore */ }
+  })();
+</script>
+
+<script>
+  (async function drawRevenue(){
+    const ctx = document.getElementById('revenueChart')?.getContext('2d');
+    if(!ctx || typeof Chart === 'undefined') return;
+    try{
+      const res = await fetch('/api/metrics/revenue/last6');
+      if(!res.ok) return;
+      const data = await res.json();
+      const labels = data.map(d=>d.label);
+      const amounts = data.map(d=>d.amount);
+      new Chart(ctx, {
+        type:'line',
+        data:{ labels, datasets:[{ label:'Monthly Revenue', data:amounts,
+            borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.1)', borderWidth:2, fill:true, tension:.4, pointRadius:3 }]},
+        options:{ responsive:true, plugins:{legend:{display:false}},
+          scales:{ y:{ beginAtZero:true, grid:{drawBorder:false}}, x:{ grid:{display:false}}}}
+      });
+    }catch(e){ /* ignore */ }
+  })();
+</script>
+</body>
+</html>

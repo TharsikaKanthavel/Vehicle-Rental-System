@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layouts/main :: head">
+    <title>Financial Reports - Vehicle Rental System</title>
+</head>
+<body>
+<div th:replace="layouts/main :: navigation"></div>
+
+<div class="flex pt-16">
+    <div th:replace="layouts/main :: sidebar"></div>
+
+    <main class="main-content flex-1 ml-64 p-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Financial Reports</h1>
+            <p class="text-gray-600">Detailed financial analysis and reports</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Revenue Report -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-4">Revenue Summary</h3>
+                <div th:if="${revenueReport}" class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Revenue:</span>
+                        <span class="font-semibold" th:text="'$' + ${#numbers.formatDecimal(revenueReport.totalRevenue, 1, 2)}"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Monthly Revenue:</span>
+                        <span class="font-semibold" th:text="'$' + ${#numbers.formatDecimal(revenueReport.monthlyRevenue, 1, 2)}"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Rentals:</span>
+                        <span class="font-semibold" th:text="${revenueReport.totalRentals}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Performance -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-4">Vehicle Performance</h3>
+                <div th:if="${vehiclePerformance}">
+                    <canvas id="vehicleChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Actions -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <button class="bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-200">
+                <i class="fas fa-download mr-2"></i>Export PDF
+            </button>
+            <button class="bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition duration-200">
+                <i class="fas fa-file-excel mr-2"></i>Export Excel
+            </button>
+            <button class="bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition duration-200">
+                <i class="fas fa-chart-bar mr-2"></i>Generate Charts
+            </button>
+            <button class="bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition duration-200">
+                <i class="fas fa-print mr-2"></i>Print Report
+            </button>
+        </div>
+    </main>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const vehicleData = [[${vehiclePerformance}]];
+
+    if (vehicleData) {
+        const ctx = document.getElementById('vehicleChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: vehicleData.labels,
+                datasets: [{
+                    label: 'Number of Rentals',
+                    data: vehicleData.rentals,
+                    backgroundColor: '#3B82F6'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

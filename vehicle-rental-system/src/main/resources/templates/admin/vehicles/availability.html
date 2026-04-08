@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{layouts/main :: head('Admin • Availability')}"></head>
+<body class="bg-gray-100">
+<div th:replace="~{layouts/main :: navigation}"></div>
+<div class="flex pt-16">
+    <div th:replace="~{layouts/main :: sidebar}"></div>
+
+    <main class="flex-1 ml-64 p-8">
+        <h1 class="text-2xl font-bold mb-4">Vehicle Availability</h1>
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <label class="block">Vehicle
+                <select id="v" class="border px-3 py-2 rounded w-full mt-1">
+                    <option th:each="v : ${vehicles}" th:value="${v.id}" th:text="${v.make} + ' ' + ${v.model} + ' (' + ${v.licensePlate} + ')'"></option>
+                </select>
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                <label>From <input id="from" type="date" class="border px-3 py-2 rounded w-full"></label>
+                <label>To <input id="to" type="date" class="border px-3 py-2 rounded w-full"></label>
+                <button class="bg-blue-600 text-white px-4 rounded" onclick="goto()">Open Calendar</button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function goto(){
+        const id=document.getElementById('v').value;
+        const from=document.getElementById('from').value;
+        const to=document.getElementById('to').value;
+        if(!id||!from||!to){ alert('Pick vehicle and date range'); return; }
+        location.href=`/admin/vehicles/${id}/calendar?from=${from}&to=${to}`;
+    }
+</script>
+</body>
+</html>

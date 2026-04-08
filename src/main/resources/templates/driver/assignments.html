@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>My Assignments</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="container">
+  <h2>My Assignments</h2>
+  <table>
+    <thead><tr><th>Booking</th><th>Vehicle</th><th>Pickup</th><th>Return</th><th>Note</th><th>Status</th><th>Update</th></tr></thead>
+    <tbody>
+    <tr th:each="t : ${trips}">
+      <td th:text="${t.id}"></td>
+      <td th:text="${t.vehicleId}"></td>
+      <td th:text="${t.pickupDateTime}"></td>
+      <td th:text="${t.returnDateTime}"></td>
+      <td th:text="${t.driverNote}"></td>
+      <td th:text="${t.driverTripStatus}"></td>
+      <td>
+        <form th:action="@{/driver/assignments/{id}/status(id=${t.id})}" method="post">
+          <select name="status" th:with="ops=${statuses}">
+            <option th:each="s : ${ops}" th:value="${s}" th:text="${s}"></option>
+          </select>
+          <button type="submit">Save</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

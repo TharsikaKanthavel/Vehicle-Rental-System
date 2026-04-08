@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layouts/main :: head('Driver Dashboard')}"></head>
+<body>
+<div th:replace="~{layouts/main :: navigation}"></div>
+
+<div class="flex pt-16">
+    <div th:replace="~{layouts/main :: sidebar}"></div>
+
+    <main id="mainContent" class="main-content flex-1 ml-64 p-8">
+        <div th:replace="~{layouts/main :: flash-messages}"></div>
+
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Your Trips</h1>
+            <p class="text-gray-600">Today’s schedule and upcoming assignments.</p>
+
+            <!-- NEW: My Deliveries button -->
+            <div class="mt-4">
+                <a href="/driver/deliveries"
+                   class="inline-flex items-center bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm">
+                    <i class="fas fa-route mr-2"></i> My Deliveries
+                </a>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow p-6 border-l-4 border-green-500">
+                <p class="text-sm text-gray-600">Today</p>
+                <p class="text-3xl font-bold" th:text="${todayTrips}">0</p>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6 border-l-4 border-blue-500">
+                <p class="text-sm text-gray-600">Upcoming</p>
+                <p class="text-3xl font-bold" th:text="${upcomingTripsCount}">0</p>
+            </div>
+            <div class="bg-white rounded-xl shadow p-6 border-l-4 border-purple-500">
+                <p class="text-sm text-gray-600">Completed (30d)</p>
+                <p class="text-3xl font-bold" th:text="${completedTrips30d}">0</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Assigned Trips -->
+            <div class="bg-white rounded-xl shadow p-6">
+                <h3 class="text-xl font-semibold mb-4">Assigned Trips</h3>
+                <div th:if="${assignedTrips == null or #lists.isEmpty(assignedTrips)}" class="text-gray-500">No assignments yet.</div>
+
+                <div th:each="t : ${assignedTrips}" class="flex justify-between items-center py-2 border-b last:border-b-0">
+                    <div>
+                        <p class="font-medium" th:text="${t.title}">Trip</p>
+                        <p class="text-sm text-gray-500">
+                            <span th:text="${t.pickupLocation}">Pickup</span> →
+                            <span th:text="${t.dropoffLocation}">Drop</span>
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm" th:text="${#temporals.format(t.startTime, 'MMM dd, HH:mm')}">Jan 01, 09:00</p>
+                        <a th:href="@{'/driver/deliveries'}" class="text-blue-600 hover:text-blue-800 text-sm">Open</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming -->
+            <div class="bg-white rounded-xl shadow p-6">
+                <h3 class="text-xl font-semibold mb-4">Upcoming</h3>
+                <div th:if="${upcomingTrips == null or #lists.isEmpty(upcomingTrips)}" class="text-gray-500">Nothing scheduled.</div>
+
+                <div th:each="t : ${upcomingTrips}" class="flex justify-between items-center py-2 border-b last:border-b-0">
+                    <div>
+                        <p class="font-medium" th:text="${t.title}">Trip</p>
+                        <p class="text-sm text-gray-500" th:text="${t.vehicleLabel}">Vehicle</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm" th:text="${#temporals.format(t.startTime, 'MMM dd, HH:mm')}">Date</p>
+                        <a th:href="@{'/driver/deliveries'}" class="text-blue-600 hover:text-blue-800 text-sm">View</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

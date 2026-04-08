@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Vehicle Rental System</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .card-shadow {
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .login-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+<body class="gradient-bg flex items-center justify-center p-4">
+<div class="max-w-md w-full space-y-8 login-container rounded-2xl card-shadow p-8">
+  <div class="text-center">
+    <div class="mx-auto h-20 w-20 bg-white rounded-full flex items-center justify-center mb-4">
+      <i class="fas fa-car text-blue-600 text-3xl"></i>
+    </div>
+    <h2 class="text-4xl font-extrabold text-white">Welcome Back</h2>
+    <p class="mt-2 text-sm text-blue-100">Sign in to your account</p>
+  </div>
+
+  <form th:action="@{/login}" method="post" class="mt-8 space-y-6">
+    <!-- CSRF Token - REQUIRED for Spring Security -->
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+    <div th:if="${param.error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+      <i class="fas fa-exclamation-circle mr-2"></i>
+      <span>Invalid username or password!</span>
+    </div>
+    <div th:if="${param.logout}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+      <i class="fas fa-check-circle mr-2"></i>
+      <span>You have been logged out successfully.</span>
+    </div>
+    <div th:if="${message}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+      <i class="fas fa-check-circle mr-2"></i>
+      <span th:text="${message}"></span>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label for="username" class="sr-only">Username</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-user text-gray-400"></i>
+          </div>
+          <input id="username" name="username" type="text" required
+                 class="relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="Username" autocomplete="username">
+        </div>
+      </div>
+      <div>
+        <label for="password" class="sr-only">Password</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-lock text-gray-400"></i>
+          </div>
+          <input id="password" name="password" type="password" required
+                 class="relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                 placeholder="Password" autocomplete="current-password">
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between">
+      <div class="flex items-center">
+        <input id="remember-me" name="remember-me" type="checkbox"
+               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+        <label for="remember-me" class="ml-2 block text-sm text-white">Remember me</label>
+      </div>
+      <div class="text-sm">
+        <a href="#" class="font-medium text-blue-200 hover:text-white">Forgot password?</a>
+      </div>
+    </div>
+
+    <div>
+      <button type="submit"
+              class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 transform hover:scale-105">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-sign-in-alt text-blue-300 group-hover:text-blue-400"></i>
+                    </span>
+        Sign in
+      </button>
+    </div>
+
+    <div class="text-center">
+      <span class="text-sm text-blue-100">Don't have an account? </span>
+      <a th:href="@{/register}" class="font-medium text-white hover:text-blue-200">Sign up</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Real-time validation
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const username = document.getElementById('username');
+    const password = document.getElementById('password');
+
+    function validateForm() {
+      let isValid = true;
+
+      if (username.value.trim().length < 3) {
+        showError(username, 'Username must be at least 3 characters');
+        isValid = false;
+      } else {
+        clearError(username);
+      }
+
+      if (password.value.length < 6) {
+        showError(password, 'Password must be at least 6 characters');
+        isValid = false;
+      } else {
+        clearError(password);
+      }
+
+      return isValid;
+    }
+
+    function showError(input, message) {
+      clearError(input);
+      input.classList.add('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'text-red-500 text-xs mt-1';
+      errorDiv.textContent = message;
+      input.parentNode.appendChild(errorDiv);
+    }
+
+    function clearError(input) {
+      input.classList.remove('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+      const errorDiv = input.parentNode.querySelector('.text-red-500');
+      if (errorDiv) {
+        errorDiv.remove();
+      }
+    }
+
+    username.addEventListener('blur', validateForm);
+    password.addEventListener('blur', validateForm);
+
+    form.addEventListener('submit', function(e) {
+      if (!validateForm()) {
+        e.preventDefault();
+      }
+    });
+  });
+</script>
+</body>
+</html>

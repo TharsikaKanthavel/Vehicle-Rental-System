@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DriveEase • Admin • Deliveries</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root{--primary:#2c3e50;--secondary:#3498db;--accent:#e74c3c;--light:#ecf0f1;--dark:#2c3e50;--success:#2ecc71;--warning:#f39c12;--text:#333;--shadow:0 4px 6px rgba(0,0,0,.1);--transition:.25s}
+        *{box-sizing:border-box;font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif}
+        body{margin:0;background:#f8f9fa;color:#333;min-height:100vh;display:flex;flex-direction:column}
+        header{background:linear-gradient(135deg,var(--primary),#1f2a3a);color:#fff;padding:18px 0;box-shadow:var(--shadow)}
+        .container{max-width:1200px;margin:0 auto;padding:0 20px}
+        .header-row{display:flex;align-items:center;justify-content:space-between}
+        .logo{display:flex;align-items:center;gap:10px}
+        .logo i{color:var(--secondary);font-size:28px}
+        .logo h1{margin:0;font-size:22px}
+        .actions{display:flex;gap:10px}
+        .btn{border:none;border-radius:8px;padding:10px 14px;font-weight:600;cursor:pointer;transition:var(--transition)}
+        .btn-primary{background:var(--secondary);color:#fff}
+        .btn-primary:hover{background:#2d7fbb}
+        .btn-danger{background:var(--accent);color:#fff}
+        .btn-danger:hover{background:#cf3f31}
+        .btn-ghost{background:transparent;border:2px solid var(--secondary);color:#fff}
+        main{flex:1;padding:28px 0}
+        .card{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:18px}
+        .grid{display:grid;grid-template-columns:1fr;gap:18px}
+        .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px}
+        select,input[type="date"]{padding:10px;border:1px solid #ddd;border-radius:8px}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:12px;border-bottom:1px solid #eee;text-align:left}
+        th{color:#444;font-weight:700;background:#fafafa}
+        .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700}
+        .pill.SCHEDULED{background:#e8f4ff;color:#1f6fba}
+        .pill.IN_PROGRESS{background:#e8ffef;color:#167a3d}
+        .pill.COMPLETED{background:#eef8f0;color:#2a7c46}
+        .pill.CANCELLED{background:#ffecec;color:#b12e2e}
+        footer{background:var(--dark);color:#fff;padding:24px 0;margin-top:auto}
+        .muted{opacity:.7}
+        .nowrap{white-space:nowrap}
+    </style>
+</head>
+<body>
+<header>
+    <div class="container">
+        <div class="header-row">
+            <div class="logo">
+                <i class="fas fa-car"></i><h1>DriveEase • Admin</h1>
+            </div>
+            <div class="actions">
+                <a th:href="@{/admin/deliveries/new}" class="btn btn-ghost"><i class="fa fa-plus"></i>&nbsp;New Delivery</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="container grid">
+        <div class="card">
+            <div class="toolbar">
+                <div>
+                    <strong>Deliveries</strong>
+                </div>
+                <form th:action="@{/admin/deliveries}" method="get">
+                    <label class="nowrap">Status&nbsp;
+                        <select name="status" onchange="this.form.submit()">
+                            <option th:each="s : ${statusValues}"
+                                    th:value="${s}"
+                                    th:text="${s}"
+                                    th:selected="${s == selectedStatus}"></option>
+                        </select>
+                    </label>
+                </form>
+            </div>
+
+            <div style="overflow:auto">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Vehicle</th>
+                        <th>Driver</th>
+                        <th>Customer</th>
+                        <th>Pickup → Drop</th>
+                        <th>Window</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="d,idx : ${deliveries}">
+                        <td th:text="${idx.index + 1}">1</td>
+                        <td th:text="${d.vehicleId}">V-101</td>
+                        <td th:text="${d.driverId}">U-52</td>
+                        <td th:text="${d.customerName}">John Doe</td>
+                        <td>
+                            <div><strong th:text="${d.pickupLocation}">Pickup</strong></div>
+                            <div class="muted" th:text="${d.dropoffLocation}">Drop</div>
+                        </td>
+                        <td>
+                            <div th:text="${#temporals.format(d.scheduledStart,'yyyy-MM-dd HH:mm')}">2025-09-29 09:00</div>
+                            <div class="muted">→ <span th:text="${#temporals.format(d.scheduledEnd,'yyyy-MM-dd HH:mm')}">11:00</span></div>
+                        </td>
+                        <td><span class="pill" th:text="${d.status}" th:classappend="' '+${d.status}">SCHEDULED</span></td>
+                        <td>
+                            <form th:if="${d.status.name() != 'CANCELLED'}"
+                                  th:action="@{|/admin/deliveries/${d.id}/cancel|}" method="post" style="display:inline">
+                                <button type="submit" class="btn btn-danger"><i class="fa fa-ban"></i>&nbsp;Cancel</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(deliveries)}">
+                        <td colspan="8" class="muted">No deliveries found for this status.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="container">
+        <div class="muted">© DriveEase Vehicle Rental • Admin</div>
+    </div>
+</footer>
+</body>
+</html>

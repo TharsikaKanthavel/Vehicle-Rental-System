@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Manage Vehicles</title>
+
+    <!-- Inline styles -->
+    <style>
+        /* Base */
+        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:20px;background:#f8fafc;color:#1e293b}
+        .container{max-width:1100px;margin:0 auto}
+        h1{font-size:1.8rem;margin:0 0 18px;color:#0f172a}
+
+        /* Buttons / toolbar */
+        .toolbar{margin:0 0 16px}
+        .btn{display:inline-block;padding:6px 12px;border-radius:6px;text-decoration:none;background:#e2e8f0;color:#1e293b}
+        .btn:hover{background:#cbd5e1}
+        .btn-primary{background:#3b82f6;color:#fff}
+        .btn-primary:hover{background:#2563eb}
+        .btn-sm{padding:4px 10px;font-size:.85rem}
+
+        /* Table */
+        .table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+        .table th,.table td{padding:12px 14px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:.95rem}
+        .table th{background:#f1f5f9;color:#334155;font-weight:600}
+        .table tr:hover td{background:#f9fafb}
+
+        img.thumb{width:120px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Manage Vehicles</h1>
+
+    <div class="toolbar">
+        <a class="btn btn-primary" th:href="@{/admin/vehicles/new}">Add Vehicle</a>
+        <a class="btn" th:href="@{/admin/dashboard}">Back to Dashboard</a>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Image</th>
+            <th>Make / Model</th>
+            <th>Year</th>
+            <th>Type</th>
+            <th>Plate</th>
+            <th>Rate</th>
+            <th>Status</th>
+            <th>Mileage</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- vehicles must be added as model attribute -->
+        <tr th:each="v : ${vehicles}"
+            th:with="imgUrl=${#strings.isEmpty(v.imageUrl) ? '/images/placeholder.png' : v.imageUrl}">
+            <td>
+                <img class="thumb" alt="vehicle"
+                     th:src="@{${imgUrl}}"
+                     onerror="this.onerror=null;this.src='/images/placeholder.png';">
+            </td>
+            <td><span th:text="${v.make + ' ' + v.model}">Make Model</span></td>
+            <td th:text="${v.year}">2024</td>
+            <td th:text="${v.type}">SEDAN</td>
+            <td th:text="${v.licensePlate}">ABC123</td>
+            <td th:text="${'$' + #numbers.formatDecimal(v.dailyRate,1,2) + '/day'}">$00.00/day</td>
+            <td th:text="${v.status}">AVAILABLE</td>
+            <td th:text="${v.mileage}">0</td>
+            <td>
+                <a class="btn btn-sm" th:href="@{|/admin/vehicles/${v.id}/edit|}">Edit</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

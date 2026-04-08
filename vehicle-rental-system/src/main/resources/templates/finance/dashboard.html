@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layouts/main :: head(pageTitle='Finance Dashboard')}">
+    <title>Finance Dashboard</title>
+</head>
+<body>
+<div th:replace="~{layouts/main :: navigation}"></div>
+
+<div class="flex pt-16">
+    <div th:replace="~{layouts/main :: sidebar}"></div>
+
+    <main id="mainContent" class="main-content flex-1 ml-64 p-8">
+        <div th:replace="~{layouts/main :: flash-messages}"></div>
+
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Finance Overview</h1>
+            <p class="text-gray-600">Key revenue and payment metrics.</p>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+                <p class="opacity-90 text-sm">Today</p>
+                <p class="text-3xl font-bold" th:text="${'$' + #numbers.formatDecimal(todayRevenue, 1, 2)}">$0.00</p>
+            </div>
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+                <p class="opacity-90 text-sm">This Month</p>
+                <p class="text-3xl font-bold" th:text="${'$' + #numbers.formatDecimal(monthRevenue, 1, 2)}">$0.00</p>
+            </div>
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+                <p class="opacity-90 text-sm">Total Revenue</p>
+                <p class="text-3xl font-bold" th:text="${'$' + #numbers.formatDecimal(totalRevenue, 1, 2)}">$0.00</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Recent Transactions -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-4">Recent Transactions</h3>
+                <div th:if="${recentTransactions == null or #lists.isEmpty(recentTransactions)}" class="text-gray-500">
+                    No recent transactions.
+                </div>
+                <div th:each="t : ${recentTransactions}" class="flex justify-between items-center py-2 border-b last:border-b-0">
+                    <div>
+                        <p class="font-medium" th:text="${t.reference}">TRX-0001</p>
+                        <p class="text-sm text-gray-500" th:text="${#temporals.format(t.date, 'MMM dd, yyyy')}">Jan 01, 2025</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold" th:text="${'$' + #numbers.formatDecimal(t.amount, 1, 2)}">$0.00</p>
+                        <span class="text-xs px-2 py-1 rounded-full"
+                              th:classappend="${t.status} == 'PAID' ? ' bg-green-100 text-green-800' : ' bg-yellow-100 text-yellow-800'"
+                              th:text="${t.status}">PAID</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unpaid Invoices -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-4">Unpaid Invoices</h3>
+                <div th:if="${unpaidInvoices == null or #lists.isEmpty(unpaidInvoices)}" class="text-gray-500">
+                    No unpaid invoices 🎉
+                </div>
+                <div th:each="inv : ${unpaidInvoices}" class="flex justify-between items-center py-2 border-b last:border-b-0">
+                    <div>
+                        <p class="font-medium" th:text="${inv.invoiceNo}">INV-0001</p>
+                        <p class="text-sm text-gray-500">
+                            Due <span th:text="${#temporals.format(inv.dueDate, 'MMM dd, yyyy')}">Jan 10, 2025</span>
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold" th:text="${'$' + #numbers.formatDecimal(inv.amount, 1, 2)}">$0.00</p>
+                        <a th:href="@{'/finance/invoices/' + ${inv.id}}" class="text-blue-600 hover:text-blue-800 text-sm">View</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

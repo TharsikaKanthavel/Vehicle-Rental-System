@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Availability</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('https://images.unsplash.com/photo-1617814079118-32a9a6d7c8f0?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 15, 40, 0.8);
+            backdrop-filter: blur(6px);
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            background: rgba(20, 40, 80, 0.85);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            text-align: center;
+            color: #fff;
+            width: 350px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            color: #00bfff;
+            text-shadow: 0 0 5px rgba(0, 191, 255, 0.7);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 12px;
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 191, 255, 0.6);
+        }
+
+        ul {
+            list-style: none;
+            margin-top: 20px;
+            padding: 0;
+            text-align: left;
+        }
+
+        li {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 8px;
+            border-radius: 6px;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Check Vehicle Availability</h2>
+    <form id="checkForm">
+        <label>From: <input type="datetime-local" name="from"></label>
+        <label>To: <input type="datetime-local" name="to"></label>
+        <button type="submit">Check</button>
+    </form>
+    <ul id="list"></ul>
+</div>
+
+<script>
+    document.getElementById("checkForm").onsubmit = e => {
+        e.preventDefault();
+        const from = e.target.from.value;
+        const to = e.target.to.value;
+        fetch(`/api/vehicles/available?from=${from}&to=${to}`)
+            .then(r => r.json())
+            .then(data => {
+                const list = document.getElementById("list");
+                list.innerHTML = "";
+                if (data.length === 0) {
+                    list.innerHTML = "<li>No vehicles available</li>";
+                } else {
+                    data.forEach(v => {
+                        list.innerHTML += `<li>${v.plateNumber} - ${v.brand} ${v.model}</li>`;
+                    });
+                }
+            });
+    };
+</script>
+</body>
+</html>
